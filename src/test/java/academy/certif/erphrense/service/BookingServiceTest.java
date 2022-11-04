@@ -2,6 +2,10 @@ package academy.certif.erphrense.service;
 
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -14,6 +18,19 @@ public class BookingServiceTest
 {
     private static CancelableProvider ticketProvider;
     private static BookingService bookingService;
+
+    private boolean validateDateFormat(String input) {
+        if(input == null) {
+            return false;
+        }
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        try {
+            Date d = format.parse(input);
+            return true;
+        } catch(ParseException e) {
+            return false;
+        }
+    }
 
     @BeforeClass
     public static void init() {
@@ -29,5 +46,11 @@ public class BookingServiceTest
         Cancelable result = BookingServiceTest.bookingService.book(null, ticket);
         ticket = (Ticket) result;
         assertTrue(ticket.getReference() != 0);
+        assertTrue(ticket.getFrom() != ticket.getTo());
+        assertTrue(ticket.getPerson().matches(".*\\d.*") == false);
+        assertTrue(validateDateFormat(ticket.getDeparture()) == true);
+        Boolean suppr = BookingServiceTest.bookingService.cancel(ticket.getReference());
+        assertTrue(suppr == true);
+        
     }
 }
